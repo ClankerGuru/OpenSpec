@@ -88,6 +88,7 @@ export async function runCLI(args: string[] = [], options: RunCLIOptions = {}): 
       },
       stdio: ['pipe', 'pipe', 'pipe'],
       windowsHide: true,
+      shell: process.platform === 'win32',
     });
 
     child.unref();
