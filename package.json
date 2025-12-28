@@ -1,6 +1,6 @@
 {
-  "name": "@fission-ai/openspec",
-  "version": "0.17.2",
+  "name": "@clanker-guru/openspec",
+  "version": "0.0.1-alpha.1",
   "description": "AI-native system for spec-driven development",
   "keywords": [
     "openspec",
@@ -9,10 +9,10 @@
     "ai",
     "development"
   ],
-  "homepage": "https://github.com/Fission-AI/OpenSpec",
+  "homepage": "https://github.com/clanker-guru/OpenSpec",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Fission-AI/OpenSpec"
+    "url": "https://github.com/clanker-guru/OpenSpec"
   },
   "license": "MIT",
   "author": "OpenSpec Contributors",
@@ -27,46 +27,37 @@
     }
   },
   "bin": {
-    "openspec": "./bin/openspec.js"
+    "openspec": "./bin/openspec.ts"
   },
   "files": [
     "dist",
     "bin",
-    "scripts/postinstall.js",
+    "scripts/postinstall.ts",
     "!dist/**/*.test.js",
     "!dist/**/__tests__",
     "!dist/**/*.map"
   ],
   "scripts": {
     "lint": "eslint src/",
-    "build": "node build.js",
+    "build": "bun build.ts",
     "dev": "tsc --watch",
-    "dev:cli": "pnpm build && node bin/openspec.js",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "test:postinstall": "node scripts/postinstall.js",
-    "prepare": "pnpm run build",
-    "prepublishOnly": "pnpm run build",
-    "postinstall": "node scripts/postinstall.js",
-    "check:pack-version": "node scripts/pack-version-check.mjs",
-    "release": "pnpm run release:ci",
-    "release:ci": "pnpm run check:pack-version && pnpm exec changeset publish",
-    "release:local": "pnpm exec changeset version && pnpm run check:pack-version && pnpm exec changeset publish",
-    "changeset": "changeset"
-  },
-  "engines": {
-    "node": ">=20.19.0"
+    "dev:cli": "bun run build && bun bin/openspec.js",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "test:coverage": "bun test --coverage",
+    "test:postinstall": "bun scripts/postinstall.ts",
+    "prepare": "bun run build",
+    "prepublishOnly": "bun run build",
+    "postinstall": "bun scripts/postinstall.ts",
+    "check:pack-version": "bun scripts/pack-version-check.ts",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.7",
-    "@types/node": "^24.2.0",
-    "@vitest/ui": "^3.2.4",
+    "@types/bun": "^1.2.7",
     "eslint": "^9.39.2",
+    "jiti": "^2.6.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.1",
-    "vitest": "^3.2.4"
+    "typescript-eslint": "^8.50.1"
   },
   "dependencies": {
     "@inquirer/core": "^10.2.2",

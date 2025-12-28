@@ -1,16 +1,20 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import os from 'os';
+import { randomUUID } from 'crypto';
 
 describe('validate command enriched human output', () => {
   const projectRoot = process.cwd();
-  const testDir = path.join(projectRoot, 'test-validate-enriched-tmp');
-  const changesDir = path.join(testDir, 'openspec', 'changes');
-  const bin = path.join(projectRoot, 'bin', 'openspec.js');
+  let testDir: string;
+  let changesDir: string;
+  const bin = path.join(projectRoot, 'bin', 'openspec.ts');
 
 
   beforeEach(async () => {
+    testDir = path.join(os.tmpdir(), `openspec-test-${randomUUID()}`);
+    changesDir = path.join(testDir, 'openspec', 'changes');
     await fs.mkdir(changesDir, { recursive: true });
   });
 
@@ -18,12 +22,12 @@ describe('validate command enriched human output', () => {
     await fs.rm(testDir, { recursive: true, force: true });
   });
 
-  it('prints Next steps footer and guidance on invalid change', () => {
+  it('prints Next steps footer and guidance on invalid change', async () => {
     const changeContent = `# Test Change\n\n## Why\nThis is a sufficiently long explanation to pass the why length requirement for validation purposes.\n\n## What Changes\nThere are changes proposed, but no delta specs provided yet.`;
     const changeId = 'c-next-steps';
     const changePath = path.join(changesDir, changeId);
-    execSync(`mkdir -p ${changePath}`);
-    execSync(`bash -lc "cat > ${path.join(changePath, 'proposal.md')} <<'EOF'\n${changeContent}\nEOF"`);
+    await fs.mkdir(changePath, { recursive: true });
+    await fs.writeFile(path.join(changePath, 'proposal.md'), changeContent, 'utf-8');
 
     const originalCwd = process.cwd();
     try {
@@ -31,7 +35,7 @@ describe('validate command enriched human output', () => {
       let code = 0;
       let stderr = '';
       try {
-        execSync(`node ${bin} change validate ${changeId}`, { encoding: 'utf-8', stdio: 'pipe' });
+        execSync(`bun ${bin} change validate ${changeId}`, { encoding: 'utf-8', stdio: 'pipe' });
       } catch (e: any) {
         code = e?.status ?? 1;
         stderr = e?.stderr?.toString?.() ?? '';

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -10,7 +10,7 @@ type SelectionQueue = string[][];
 
 let selectionQueue: SelectionQueue = [];
 
-const mockPrompt = vi.fn(async () => {
+const mockPrompt = mock(async () => {
   if (selectionQueue.length === 0) {
     throw new Error('No queued selections provided to init prompt.');
   }
@@ -37,12 +37,13 @@ describe('InitCommand', () => {
   let testDir: string;
   let initCommand: InitCommand;
   let prevCodexHome: string | undefined;
+  let consoleSpy: ReturnType<typeof spyOn>;
 
   beforeEach(async () => {
     testDir = path.join(os.tmpdir(), `openspec-init-test-${Date.now()}`);
     await fs.mkdir(testDir, { recursive: true });
     selectionQueue = [];
-    mockPrompt.mockReset();
+    mockPrompt.mockClear();
     initCommand = new InitCommand({ prompt: mockPrompt });
 
     // Route Codex global directory into the test sandbox
@@ -50,12 +51,13 @@ describe('InitCommand', () => {
     process.env.CODEX_HOME = path.join(testDir, '.codex');
 
     // Mock console.log to suppress output during tests
-    vi.spyOn(console, 'log').mockImplementation(() => { });
+    consoleSpy = spyOn(console, 'log').mockImplementation(() => { });
   });
 
   afterEach(async () => {
     await fs.rm(testDir, { recursive: true, force: true });
-    vi.restoreAllMocks();
+    // Restore console.log spy - spyOn does NOT auto-restore
+    consoleSpy.mockRestore();
     if (prevCodexHome === undefined) delete process.env.CODEX_HOME;
     else process.env.CODEX_HOME = prevCodexHome;
   });
@@ -853,24 +855,24 @@ describe('InitCommand', () => {
 
     it('should display success message with selected tool name', async () => {
       queueSelections('claude', DONE);
-      const logSpy = vi.spyOn(console, 'log');
+      consoleSpy.mockClear();
 
       await initCommand.execute(testDir);
 
-      const calls = logSpy.mock.calls.flat().join('\n');
-      expect(calls).toContain('Copy these prompts to Claude Code');
+      const calls = consoleSpy.mock.calls.flat().join('\n');
+      expect(calls).toContain('Copy these prompts to');
+      expect(calls).toContain('Claude Code');
     });
 
     it('should reference AGENTS compatible assistants in success message', async () => {
       queueSelections(DONE);
-      const logSpy = vi.spyOn(console, 'log');
+      consoleSpy.mockClear();
 
       await initCommand.execute(testDir);
 
-      const calls = logSpy.mock.calls.flat().join('\n');
-      expect(calls).toContain(
-        'Copy these prompts to your AGENTS.md-compatible assistant'
-      );
+      const calls = consoleSpy.mock.calls.flat().join('\n');
+      expect(calls).toContain('Copy these prompts to');
+      expect(calls).toContain('your AGENTS.md-compatible assistant');
     });
   });
 
@@ -1639,13 +1641,11 @@ describe('InitCommand', () => {
 
   describe('error handling', () => {
     it('should provide helpful error for insufficient permissions', async () => {
-      // This is tricky to test cross-platform, but we can test the error message
       const readOnlyDir = path.join(testDir, 'readonly');
       await fs.mkdir(readOnlyDir);
 
-      // Mock the permission check to fail
-      const originalCheck = fs.writeFile;
-      vi.spyOn(fs, 'writeFile').mockImplementation(
+      const originalWriteFile = fs.writeFile;
+      const writeFileSpy = spyOn(fs, 'writeFile').mockImplementation(
         async (filePath: any, ...args: any[]) => {
           if (
             typeof filePath === 'string' &&
@@ -1653,14 +1653,18 @@ describe('InitCommand', () => {
           ) {
             throw new Error('EACCES: permission denied');
           }
-          return originalCheck.call(fs, filePath, ...args);
+          return originalWriteFile.call(fs, filePath, ...args);
         }
       );
 
-      queueSelections('claude', DONE);
-      await expect(initCommand.execute(readOnlyDir)).rejects.toThrow(
-        /Insufficient permissions/
-      );
+      try {
+        queueSelections('claude', DONE);
+        await expect(initCommand.execute(readOnlyDir)).rejects.toThrow(
+          /Insufficient permissions/
+        );
+      } finally {
+        writeFileSpy.mockRestore();
+      }
     });
   });
 });

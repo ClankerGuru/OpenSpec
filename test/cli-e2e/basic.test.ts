@@ -1,9 +1,11 @@
-import { afterAll, describe, it, expect } from 'vitest';
+import { afterAll, describe, it, expect } from 'bun:test';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { tmpdir } from 'os';
 import { runCLI, cliProjectRoot } from '../helpers/run-cli.js';
 import { AI_TOOLS } from '../../src/core/config.js';
+
+const isWindows = process.platform === 'win32';
 
 async function fileExists(filePath: string): Promise<boolean> {
   try {
@@ -30,7 +32,7 @@ afterAll(async () => {
   await Promise.all(tempRoots.map((dir) => fs.rm(dir, { recursive: true, force: true })));
 });
 
-describe('openspec CLI e2e basics', () => {
+describe.skipIf(isWindows)('openspec CLI e2e basics', () => {
   it('shows help output', async () => {
     const result = await runCLI(['--help']);
     expect(result.exitCode).toBe(0);

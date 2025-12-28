@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, mock, spyOn, vi } from 'bun:test';
 import { UpdateCommand } from '../../src/core/update.js';
 import { FileSystemUtils } from '../../src/utils/file-system.js';
 import { ToolRegistry } from '../../src/core/configurators/registry.js';
@@ -6,6 +6,22 @@ import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
 import { randomUUID } from 'crypto';
+
+/**
+ * Helper to find a log message containing a specific substring from spy calls.
+ * This is more robust than assuming index 0, as tests running in parallel
+ * may pollute the spy's call list.
+ */
+function findLogMessage(spy: ReturnType<typeof spyOn>, substring: string): string | undefined {
+  const calls = spy.mock.calls;
+  for (const call of calls) {
+    const msg = call[0];
+    if (typeof msg === 'string' && msg.includes(substring)) {
+      return msg;
+    }
+  }
+  return undefined;
+}
 
 describe('UpdateCommand', () => {
   let testDir: string;
@@ -49,7 +65,7 @@ Old OpenSpec content
 More content after.`;
     await fs.writeFile(claudePath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     // Execute update command
     await updateCommand.execute(testDir);
@@ -64,7 +80,8 @@ More content after.`;
     expect(updatedContent).toContain('More content after');
 
     // Check console output
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -86,7 +103,7 @@ Old OpenSpec content
 More notes here.`;
     await fs.writeFile(qwenPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -98,7 +115,8 @@ More notes here.`;
     expect(updatedContent).toContain('Some existing content.');
     expect(updatedContent).toContain('More notes here.');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -125,7 +143,7 @@ Old slash content
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(proposalPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -137,7 +155,8 @@ Old slash content
     );
     expect(updated).not.toContain('Old slash content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -165,7 +184,7 @@ Old body
 `;
     await fs.writeFile(applyPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -176,7 +195,8 @@ Old body
     expect(updated).toContain('Work through tasks sequentially');
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -258,7 +278,7 @@ Old OpenSpec content
 More rules after.`;
     await fs.writeFile(clinePath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     // Execute update command
     await updateCommand.execute(testDir);
@@ -273,7 +293,8 @@ More rules after.`;
     expect(updatedContent).toContain('More rules after');
 
     // Check console output
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -309,7 +330,7 @@ Old slash content
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(proposalPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -321,7 +342,8 @@ Old slash content
     );
     expect(updated).not.toContain('Old slash content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -347,7 +369,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(cursorPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -356,7 +378,8 @@ Old body
     expect(updated).toContain('Work through tasks sequentially');
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -385,7 +408,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(openCodePath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -394,7 +417,8 @@ Old body
     expect(updated).toContain('Work through tasks sequentially');
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -417,7 +441,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(kilocodePath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -426,7 +450,8 @@ Old body
     expect(updated).not.toContain('Old body');
     expect(updated.startsWith('<!-- OPENSPEC:START -->')).toBe(true);
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .kilocode/workflows/openspec-apply.md'
     );
@@ -447,7 +472,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(wsPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -456,7 +481,8 @@ Old body
     expect(updated).not.toContain('Old body');
     expect(updated).toContain('## OpenSpec: Apply (Windsurf)');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .windsurf/workflows/openspec-apply.md'
     );
@@ -478,7 +504,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(agPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -488,7 +514,8 @@ Old body
     expect(updated).toContain('description: Implement an approved OpenSpec change and keep tasks in sync.');
     expect(updated).not.toContain('auto_execution_mode: 3');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .agent/workflows/openspec-apply.md'
     );
@@ -504,7 +531,7 @@ Old body
     const initialContent = `---\ndescription: Old description\nargument-hint: old-hint\n---\n\n$ARGUMENTS\n<!-- OPENSPEC:START -->\nOld body\n<!-- OPENSPEC:END -->`;
     await fs.writeFile(codexPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -516,7 +543,8 @@ Old body
     expect(updated).not.toContain('Old body');
     expect(updated).not.toContain('Old description');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .codex/prompts/openspec-apply.md'
     );
@@ -569,7 +597,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(ghPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -579,7 +607,8 @@ Old body
     expect(updated).toContain('Work through tasks sequentially');
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .github/prompts/openspec-apply.prompt.md'
     );
@@ -632,7 +661,7 @@ Old Gemini body
 `;
     await fs.writeFile(geminiProposal, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -656,7 +685,8 @@ Old Gemini body
     await expect(FileSystemUtils.fileExists(geminiApply)).resolves.toBe(false);
     await expect(FileSystemUtils.fileExists(geminiArchive)).resolves.toBe(false);
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .gemini/commands/openspec/proposal.toml'
     );
@@ -680,7 +710,7 @@ Old IFlow body
 `;
     await fs.writeFile(iflowProposal, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -703,7 +733,8 @@ Old IFlow body
     await expect(FileSystemUtils.fileExists(iflowApply)).resolves.toBe(false);
     await expect(FileSystemUtils.fileExists(iflowArchive)).resolves.toBe(false);
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .iflow/commands/openspec-proposal.md'
     );
@@ -727,7 +758,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(factoryPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -801,7 +832,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(aqPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -862,7 +893,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(auggiePath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -925,7 +956,7 @@ Old slash content
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(codeBuddyPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -937,7 +968,8 @@ Old slash content
     );
     expect(updated).not.toContain('Old slash content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1003,7 +1035,7 @@ Old slash content
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(crushPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -1015,7 +1047,8 @@ Old slash content
     );
     expect(updated).not.toContain('Old slash content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1079,7 +1112,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(costrictPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -1093,7 +1126,8 @@ Old body
     );
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1122,7 +1156,7 @@ Old slash content
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(qoderPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -1134,7 +1168,8 @@ Old slash content
     );
     expect(updated).not.toContain('Old slash content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1161,7 +1196,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(rooPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -1174,7 +1209,8 @@ Old body
     );
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1305,7 +1341,7 @@ Old OpenSpec content
 More instructions after.`;
     await fs.writeFile(costrictPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     // Execute update command
     await updateCommand.execute(testDir);
@@ -1320,7 +1356,8 @@ More instructions after.`;
     expect(updatedContent).toContain('More instructions after');
 
     // Check console output
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1368,8 +1405,8 @@ More instructions after.`;
       '<!-- OPENSPEC:START -->\nOld\n<!-- OPENSPEC:END -->'
     );
 
-    const consoleSpy = vi.spyOn(console, 'log');
-    const errorSpy = vi.spyOn(console, 'error');
+    const consoleSpy = spyOn(console, 'log');
+    const errorSpy = spyOn(console, 'error');
     const originalWriteFile = FileSystemUtils.writeFile.bind(FileSystemUtils);
     const writeSpy = vi
       .spyOn(FileSystemUtils, 'writeFile')
@@ -1386,7 +1423,8 @@ More instructions after.`;
 
     // Should report the failure
     expect(errorSpy).toHaveBeenCalled();
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1446,11 +1484,12 @@ More instructions after.`;
 
   it('should handle no AI tool files present', async () => {
     // Execute update command with no AI tool files
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
     await updateCommand.execute(testDir);
 
     // Should only update OpenSpec instructions
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1470,11 +1509,12 @@ More instructions after.`;
       '<!-- OPENSPEC:START -->\nOld\n<!-- OPENSPEC:END -->'
     );
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
     await updateCommand.execute(testDir);
 
     // Should report updating with new format
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1566,7 +1606,7 @@ Old content
     const original = `# Custom intro\n\n<!-- OPENSPEC:START -->\nOld content\n<!-- OPENSPEC:END -->\n\n# Footnotes`;
     await fs.writeFile(rootAgentsPath, original);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -1577,7 +1617,8 @@ Old content
     expect(updated).toContain('openspec update');
     expect(updated).not.toContain('Old content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md, AGENTS.md)'
     );
@@ -1608,25 +1649,25 @@ Old content
     );
     await fs.chmod(claudePath, 0o444); // Read-only
 
-    const consoleSpy = vi.spyOn(console, 'log');
-    const errorSpy = vi.spyOn(console, 'error');
+    const consoleSpy = spyOn(console, 'log');
+    const errorSpy = spyOn(console, 'error');
     const originalWriteFile = FileSystemUtils.writeFile.bind(FileSystemUtils);
-    const writeSpy = vi
-      .spyOn(FileSystemUtils, 'writeFile')
-      .mockImplementation(async (filePath, content) => {
+    const writeSpy = spyOn(FileSystemUtils, 'writeFile').mockImplementation(
+      async (filePath, content) => {
         if (filePath.endsWith('CLAUDE.md')) {
           throw new Error('EACCES: permission denied, open');
         }
-
         return originalWriteFile(filePath, content);
-      });
+      }
+    );
 
     // Execute update command - should not throw
     await updateCommand.execute(testDir);
 
     // Should report the failure
     expect(errorSpy).toHaveBeenCalled();
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );

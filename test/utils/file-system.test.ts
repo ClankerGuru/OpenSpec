@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -38,7 +38,7 @@ describe('FileSystemUtils', () => {
       const dirPath = path.join(testDir, 'existing-dir');
       await fs.mkdir(dirPath);
       
-      await expect(FileSystemUtils.createDirectory(dirPath)).resolves.not.toThrow();
+      await FileSystemUtils.createDirectory(dirPath);
     });
   });
 

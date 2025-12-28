@@ -46,5 +46,5 @@ export class TemplateManager {
   }
 }
 
-export { ProjectContext } from './project-template.js';
+export type { ProjectContext } from './project-template.js';
 export type { SlashCommandId } from './slash-command-templates.js';

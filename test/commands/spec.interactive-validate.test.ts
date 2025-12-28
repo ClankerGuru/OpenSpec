@@ -1,16 +1,20 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import os from 'os';
+import { randomUUID } from 'crypto';
 
 describe('spec validate (interactive behavior)', () => {
   const projectRoot = process.cwd();
-  const testDir = path.join(projectRoot, 'test-spec-validate-tmp');
-  const specsDir = path.join(testDir, 'openspec', 'specs');
-  const bin = path.join(projectRoot, 'bin', 'openspec.js');
+  let testDir: string;
+  let specsDir: string;
+  const bin = path.join(projectRoot, 'bin', 'openspec.ts');
 
 
   beforeEach(async () => {
+    testDir = path.join(os.tmpdir(), `openspec-test-${randomUUID()}`);
+    specsDir = path.join(testDir, 'openspec', 'specs');
     await fs.mkdir(specsDir, { recursive: true });
     const content = `## Purpose\nValid spec for interactive test.\n\n## Requirements\n\n### Requirement: X\nText`;
     await fs.mkdir(path.join(specsDir, 's1'), { recursive: true });
@@ -29,7 +33,7 @@ describe('spec validate (interactive behavior)', () => {
       process.env.OPEN_SPEC_INTERACTIVE = '0';
       let err: any;
       try {
-        execSync(`node ${bin} spec validate`, { encoding: 'utf-8' });
+        execSync(`bun ${bin} spec validate`, { encoding: 'utf-8' });
       } catch (e) { err = e; }
       expect(err).toBeDefined();
       expect(err.status).not.toBe(0);

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import path from 'path';
 import { promises as fs } from 'fs';
 import os from 'os';

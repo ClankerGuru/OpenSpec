@@ -1,49 +1,49 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, spyOn } from 'bun:test';
 import { CompletionCommand } from '../../src/commands/completion.js';
 import * as shellDetection from '../../src/utils/shell-detection.js';
+import { ZshInstaller } from '../../src/core/completions/installers/zsh-installer.js';
 
-// Mock the shell detection module
-vi.mock('../../src/utils/shell-detection.js', () => ({
-  detectShell: vi.fn(),
-}));
+const mockInstallResult = {
+  success: true,
+  installedPath: '/home/user/.oh-my-zsh/completions/_openspec',
+  isOhMyZsh: true,
+  message: 'Completion script installed successfully for Oh My Zsh',
+  instructions: [
+    'Completion script installed to Oh My Zsh completions directory.',
+    'Restart your shell or run: exec zsh',
+    'Completions should activate automatically.',
+  ],
+};
 
-// Mock the ZshInstaller
-vi.mock('../../src/core/completions/installers/zsh-installer.js', () => ({
-  ZshInstaller: vi.fn().mockImplementation(() => ({
-    install: vi.fn().mockResolvedValue({
-      success: true,
-      installedPath: '/home/user/.oh-my-zsh/completions/_openspec',
-      isOhMyZsh: true,
-      message: 'Completion script installed successfully for Oh My Zsh',
-      instructions: [
-        'Completion script installed to Oh My Zsh completions directory.',
-        'Restart your shell or run: exec zsh',
-        'Completions should activate automatically.',
-      ],
-    }),
-    uninstall: vi.fn().mockResolvedValue({
-      success: true,
-      message: 'Completion script removed from /home/user/.oh-my-zsh/completions/_openspec',
-    }),
-  })),
-}));
+const mockUninstallResult = {
+  success: true,
+  message: 'Completion script removed from /home/user/.oh-my-zsh/completions/_openspec',
+};
 
 describe('CompletionCommand', () => {
-  let command: CompletionCommand;
-  let consoleLogSpy: any;
-  let consoleErrorSpy: any;
+  let command: InstanceType<typeof CompletionCommand>;
+  let consoleLogSpy: ReturnType<typeof spyOn>;
+  let consoleErrorSpy: ReturnType<typeof spyOn>;
+  let detectShellSpy: ReturnType<typeof spyOn>;
+  let installSpy: ReturnType<typeof spyOn>;
+  let uninstallSpy: ReturnType<typeof spyOn>;
 
   beforeEach(() => {
     command = new CompletionCommand();
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    consoleLogSpy = spyOn(console, 'log').mockImplementation(() => {});
+    consoleErrorSpy = spyOn(console, 'error').mockImplementation(() => {});
+    detectShellSpy = spyOn(shellDetection, 'detectShell').mockReturnValue({ shell: 'zsh', detected: 'zsh' });
+    installSpy = spyOn(ZshInstaller.prototype, 'install').mockResolvedValue(mockInstallResult as any);
+    uninstallSpy = spyOn(ZshInstaller.prototype, 'uninstall').mockResolvedValue(mockUninstallResult);
     process.exitCode = 0;
   });
 
   afterEach(() => {
     consoleLogSpy.mockRestore();
     consoleErrorSpy.mockRestore();
-    vi.clearAllMocks();
+    detectShellSpy.mockRestore();
+    installSpy.mockRestore();
+    uninstallSpy.mockRestore();
   });
 
   describe('generate subcommand', () => {
@@ -57,7 +57,7 @@ describe('CompletionCommand', () => {
     });
 
     it('should auto-detect Zsh shell when no shell specified', async () => {
-      vi.mocked(shellDetection.detectShell).mockReturnValue({ shell: 'zsh', detected: 'zsh' });
+      detectShellSpy.mockReturnValue({ shell: 'zsh', detected: 'zsh' });
 
       await command.generate({});
 
@@ -67,7 +67,7 @@ describe('CompletionCommand', () => {
     });
 
     it('should show error when shell cannot be auto-detected', async () => {
-      vi.mocked(shellDetection.detectShell).mockReturnValue({ shell: undefined, detected: undefined });
+      detectShellSpy.mockReturnValue({ shell: undefined, detected: undefined });
 
       await command.generate({});
 
@@ -114,7 +114,7 @@ describe('CompletionCommand', () => {
     });
 
     it('should auto-detect Zsh shell when no shell specified', async () => {
-      vi.mocked(shellDetection.detectShell).mockReturnValue({ shell: 'zsh', detected: 'zsh' });
+      detectShellSpy.mockReturnValue({ shell: 'zsh', detected: 'zsh' });
 
       await command.install({});
 
@@ -124,7 +124,7 @@ describe('CompletionCommand', () => {
     });
 
     it('should show error when shell cannot be auto-detected', async () => {
-      vi.mocked(shellDetection.detectShell).mockReturnValue({ shell: undefined, detected: undefined });
+      detectShellSpy.mockReturnValue({ shell: undefined, detected: undefined });
 
       await command.install({});
 
@@ -163,7 +163,7 @@ describe('CompletionCommand', () => {
     });
 
     it('should auto-detect Zsh shell when no shell specified', async () => {
-      vi.mocked(shellDetection.detectShell).mockReturnValue({ shell: 'zsh', detected: 'zsh' });
+      detectShellSpy.mockReturnValue({ shell: 'zsh', detected: 'zsh' });
 
       await command.uninstall({ yes: true });
 
@@ -173,7 +173,7 @@ describe('CompletionCommand', () => {
     });
 
     it('should show error when shell cannot be auto-detected', async () => {
-      vi.mocked(shellDetection.detectShell).mockReturnValue({ shell: undefined, detected: undefined });
+      detectShellSpy.mockReturnValue({ shell: undefined, detected: undefined });
 
       await command.uninstall({ yes: true });
 
@@ -195,20 +195,11 @@ describe('CompletionCommand', () => {
 
   describe('error handling', () => {
     it('should handle installation failures gracefully', async () => {
-      const { ZshInstaller } = await import('../../src/core/completions/installers/zsh-installer.js');
-      vi.mocked(ZshInstaller).mockImplementationOnce(() => ({
-        install: vi.fn().mockResolvedValue({
-          success: false,
-          isOhMyZsh: false,
-          message: 'Permission denied',
-        }),
-        uninstall: vi.fn(),
-        isInstalled: vi.fn(),
-        getInstallationInfo: vi.fn(),
-        isOhMyZshInstalled: vi.fn(),
-        getInstallationPath: vi.fn(),
-        backupExistingFile: vi.fn(),
-      } as any));
+      installSpy.mockResolvedValueOnce({
+        success: false,
+        isOhMyZsh: false,
+        message: 'Permission denied',
+      } as any);
 
       const cmd = new CompletionCommand();
       await cmd.install({ shell: 'zsh' });
@@ -220,19 +211,10 @@ describe('CompletionCommand', () => {
     });
 
     it('should handle uninstallation failures gracefully', async () => {
-      const { ZshInstaller } = await import('../../src/core/completions/installers/zsh-installer.js');
-      vi.mocked(ZshInstaller).mockImplementationOnce(() => ({
-        install: vi.fn(),
-        uninstall: vi.fn().mockResolvedValue({
-          success: false,
-          message: 'Completion script is not installed',
-        }),
-        isInstalled: vi.fn(),
-        getInstallationInfo: vi.fn(),
-        isOhMyZshInstalled: vi.fn(),
-        getInstallationPath: vi.fn(),
-        backupExistingFile: vi.fn(),
-      } as any));
+      uninstallSpy.mockResolvedValueOnce({
+        success: false,
+        message: 'Completion script is not installed',
+      });
 
       const cmd = new CompletionCommand();
       await cmd.uninstall({ shell: 'zsh', yes: true });
@@ -246,7 +228,7 @@ describe('CompletionCommand', () => {
 
   describe('shell detection integration', () => {
     it('should show appropriate error when detected shell is unsupported', async () => {
-      vi.mocked(shellDetection.detectShell).mockReturnValue({ shell: undefined, detected: 'bash' });
+      detectShellSpy.mockReturnValue({ shell: undefined, detected: 'bash' });
 
       await command.generate({});
 
@@ -257,7 +239,7 @@ describe('CompletionCommand', () => {
     });
 
     it('should respect explicit shell parameter over auto-detection', async () => {
-      vi.mocked(shellDetection.detectShell).mockReturnValue({ shell: undefined, detected: 'bash' });
+      detectShellSpy.mockReturnValue({ shell: undefined, detected: 'bash' });
 
       await command.generate({ shell: 'zsh' });
 
