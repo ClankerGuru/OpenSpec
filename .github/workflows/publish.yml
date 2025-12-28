@@ -42,6 +42,6 @@ jobs:
           "
 
       - name: Publish
-        run: bun publish --access public --tag ${{ inputs.tag }} --tolerate-republish
+        run: bun publish --access public --tag ${{ inputs.tag }}
         env:
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
