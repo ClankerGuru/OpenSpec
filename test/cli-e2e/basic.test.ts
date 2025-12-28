@@ -1,4 +1,4 @@
-import { afterAll, describe, it, expect } from 'vitest';
+import { afterAll, describe, it, expect } from 'bun:test';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { tmpdir } from 'os';

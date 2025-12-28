@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
 import { UpdateCommand } from '../../src/core/update.js';
 import { FileSystemUtils } from '../../src/utils/file-system.js';
 import { ToolRegistry } from '../../src/core/configurators/registry.js';
@@ -49,7 +49,7 @@ Old OpenSpec content
 More content after.`;
     await fs.writeFile(claudePath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     // Execute update command
     await updateCommand.execute(testDir);
@@ -86,7 +86,7 @@ Old OpenSpec content
 More notes here.`;
     await fs.writeFile(qwenPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -125,7 +125,7 @@ Old slash content
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(proposalPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -165,7 +165,7 @@ Old body
 `;
     await fs.writeFile(applyPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -258,7 +258,7 @@ Old OpenSpec content
 More rules after.`;
     await fs.writeFile(clinePath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     // Execute update command
     await updateCommand.execute(testDir);
@@ -309,7 +309,7 @@ Old slash content
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(proposalPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -347,7 +347,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(cursorPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -385,7 +385,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(openCodePath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -417,7 +417,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(kilocodePath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -447,7 +447,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(wsPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -478,7 +478,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(agPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -504,7 +504,7 @@ Old body
     const initialContent = `---\ndescription: Old description\nargument-hint: old-hint\n---\n\n$ARGUMENTS\n<!-- OPENSPEC:START -->\nOld body\n<!-- OPENSPEC:END -->`;
     await fs.writeFile(codexPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -569,7 +569,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(ghPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -632,7 +632,7 @@ Old Gemini body
 `;
     await fs.writeFile(geminiProposal, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -680,7 +680,7 @@ Old IFlow body
 `;
     await fs.writeFile(iflowProposal, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -727,7 +727,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(factoryPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -801,7 +801,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(aqPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -862,7 +862,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(auggiePath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -925,7 +925,7 @@ Old slash content
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(codeBuddyPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -1003,7 +1003,7 @@ Old slash content
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(crushPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -1079,7 +1079,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(costrictPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -1122,7 +1122,7 @@ Old slash content
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(qoderPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -1161,7 +1161,7 @@ Old body
 <!-- OPENSPEC:END -->`;
     await fs.writeFile(rooPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -1305,7 +1305,7 @@ Old OpenSpec content
 More instructions after.`;
     await fs.writeFile(costrictPath, initialContent);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     // Execute update command
     await updateCommand.execute(testDir);
@@ -1368,8 +1368,8 @@ More instructions after.`;
       '<!-- OPENSPEC:START -->\nOld\n<!-- OPENSPEC:END -->'
     );
 
-    const consoleSpy = vi.spyOn(console, 'log');
-    const errorSpy = vi.spyOn(console, 'error');
+    const consoleSpy = spyOn(console, 'log');
+    const errorSpy = spyOn(console, 'error');
     const originalWriteFile = FileSystemUtils.writeFile.bind(FileSystemUtils);
     const writeSpy = vi
       .spyOn(FileSystemUtils, 'writeFile')
@@ -1446,7 +1446,7 @@ More instructions after.`;
 
   it('should handle no AI tool files present', async () => {
     // Execute update command with no AI tool files
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
     await updateCommand.execute(testDir);
 
     // Should only update OpenSpec instructions
@@ -1470,7 +1470,7 @@ More instructions after.`;
       '<!-- OPENSPEC:START -->\nOld\n<!-- OPENSPEC:END -->'
     );
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
     await updateCommand.execute(testDir);
 
     // Should report updating with new format
@@ -1566,7 +1566,7 @@ Old content
     const original = `# Custom intro\n\n<!-- OPENSPEC:START -->\nOld content\n<!-- OPENSPEC:END -->\n\n# Footnotes`;
     await fs.writeFile(rootAgentsPath, original);
 
-    const consoleSpy = vi.spyOn(console, 'log');
+    const consoleSpy = spyOn(console, 'log');
 
     await updateCommand.execute(testDir);
 
@@ -1608,18 +1608,17 @@ Old content
     );
     await fs.chmod(claudePath, 0o444); // Read-only
 
-    const consoleSpy = vi.spyOn(console, 'log');
-    const errorSpy = vi.spyOn(console, 'error');
+    const consoleSpy = spyOn(console, 'log');
+    const errorSpy = spyOn(console, 'error');
     const originalWriteFile = FileSystemUtils.writeFile.bind(FileSystemUtils);
-    const writeSpy = vi
-      .spyOn(FileSystemUtils, 'writeFile')
-      .mockImplementation(async (filePath, content) => {
+    const writeSpy = spyOn(FileSystemUtils, 'writeFile').mockImplementation(
+      async (filePath, content) => {
         if (filePath.endsWith('CLAUDE.md')) {
           throw new Error('EACCES: permission denied, open');
         }
-
         return originalWriteFile(filePath, content);
-      });
+      }
+    );
 
     // Execute update command - should not throw
     await updateCommand.execute(testDir);

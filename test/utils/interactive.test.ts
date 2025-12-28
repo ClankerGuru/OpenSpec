@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { isInteractive, resolveNoInteractive, InteractiveOptions } from '../../src/utils/interactive.js';
 
 describe('interactive utilities', () => {

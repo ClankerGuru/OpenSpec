@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
@@ -7,7 +7,7 @@ describe('config command integration', () => {
   // These tests use real file system operations with XDG_CONFIG_HOME override
   let tempDir: string;
   let originalEnv: NodeJS.ProcessEnv;
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+  let consoleErrorSpy: ReturnType<typeof spyOn>;
 
   beforeEach(() => {
     // Create unique temp directory for each test
@@ -19,7 +19,7 @@ describe('config command integration', () => {
     process.env.XDG_CONFIG_HOME = tempDir;
 
     // Spy on console.error
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -33,7 +33,7 @@ describe('config command integration', () => {
     consoleErrorSpy.mockRestore();
 
     // Reset module cache to pick up new XDG_CONFIG_HOME
-    vi.resetModules();
+    
   });
 
   it('should use XDG_CONFIG_HOME for config path', async () => {

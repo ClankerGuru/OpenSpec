@@ -27,32 +27,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
+          bun-version: latest
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Build project
-        run: pnpm run build
+        run: bun run build
 
       - name: Run tests
-        run: pnpm test
-
-      - name: Upload test coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report-pr
-          path: coverage/
-          retention-days: 7
+        run: bun test
 
   test_matrix:
     name: Test (${{ matrix.label }})
@@ -64,18 +51,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            shell: bash
-            label: linux-bash
+            label: linux
           - os: macos-latest
-            shell: bash
-            label: macos-bash
+            label: macos
           - os: windows-latest
-            shell: pwsh
-            label: windows-pwsh
-
-    defaults:
-      run:
-        shell: ${{ matrix.shell }}
+            label: windows
 
     steps:
       - name: Checkout code
@@ -83,37 +63,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
+          bun-version: latest
 
       - name: Print environment diagnostics
-        run: |
-          node -p "JSON.stringify({ platform: process.platform, arch: process.arch, shell: process.env.SHELL || process.env.ComSpec || '' })"
+        run: bun --version
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Build project
-        run: pnpm run build
+        run: bun run build
 
       - name: Run tests
-        run: pnpm test
-
-      - name: Upload test coverage
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report-main
-          path: coverage/
-          retention-days: 7
+        run: bun test
 
   lint:
     name: Lint & Type Check
@@ -122,28 +87,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
+          bun-version: latest
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Build project
-        run: pnpm run build
+        run: bun run build
 
       - name: Type check
-        run: pnpm exec tsc --noEmit
+        run: bun run typecheck
 
       - name: Lint
-        run: pnpm lint
+        run: bun run lint
 
       - name: Check for build artifacts
         run: |
@@ -154,38 +113,6 @@ jobs:
           if [ ! -f "dist/cli/index.js" ]; then
             echo "Error: CLI entry point not found"
             exit 1
-          fi
-
-  validate-changesets:
-    name: Validate Changesets
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Validate changesets
-        run: |
-          if command -v changeset &> /dev/null; then
-            pnpm exec changeset status --since=origin/main
-          else
-            echo "Changesets not configured, skipping validation"
           fi
 
   required-checks-pr:

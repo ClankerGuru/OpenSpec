@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import { parseSchema, SchemaValidationError } from '../../../src/core/artifact-graph/schema.js';
 
 describe('artifact-graph/schema', () => {

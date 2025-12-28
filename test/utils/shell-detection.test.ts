@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { detectShell, SupportedShell } from '../../src/utils/shell-detection.js';
 
 describe('shell-detection', () => {

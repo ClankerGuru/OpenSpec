@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import { ChangeCommand } from '../../../src/commands/change.js';
 import path from 'path';
 import { promises as fs } from 'fs';

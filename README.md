@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/Fission-AI/OpenSpec">
+  <a href="https://github.com/clanker-guru/OpenSpec">
     <picture>
       <source srcset="assets/openspec_pixel_dark.svg" media="(prefers-color-scheme: dark)">
       <source srcset="assets/openspec_pixel_light.svg" media="(prefers-color-scheme: light)">
@@ -10,9 +10,9 @@
 </p>
 <p align="center">Spec-driven development for AI coding assistants.</p>
 <p align="center">
-  <a href="https://github.com/Fission-AI/OpenSpec/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Fission-AI/OpenSpec/actions/workflows/ci.yml/badge.svg" /></a>
-  <a href="https://www.npmjs.com/package/@fission-ai/openspec"><img alt="npm version" src="https://img.shields.io/npm/v/@fission-ai/openspec?style=flat-square" /></a>
-  <a href="https://nodejs.org/"><img alt="node version" src="https://img.shields.io/node/v/@fission-ai/openspec?style=flat-square" /></a>
+  <a href="https://github.com/clanker-guru/OpenSpec/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/clanker-guru/OpenSpec/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://www.npmjs.com/package/@clanker-guru/openspec"><img alt="npm version" src="https://img.shields.io/npm/v/@clanker-guru/openspec?style=flat-square" /></a>
+  <a href="https://bun.sh/"><img alt="Bun" src="https://img.shields.io/badge/Bun-runtime-f9f1e1?logo=bun&style=flat-square" /></a>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" /></a>
   <a href="https://conventionalcommits.org"><img alt="Conventional Commits" src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?style=flat-square" /></a>
   <a href="https://discord.gg/YctCnvvshC"><img alt="Discord" src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white&style=flat-square" /></a>
@@ -131,12 +131,17 @@ These tools automatically read workflow instructions from `openspec/AGENTS.md`. 
 ### Install & Initialize
 
 #### Prerequisites
-- **Node.js >= 20.19.0** - Check your version with `node --version`
+- **Bun** - Install from [bun.sh](https://bun.sh) if you haven't already
 
-#### Step 1: Install the CLI globally
+#### Step 1: Run with bunx (recommended)
 
 ```bash
-npm install -g @fission-ai/openspec@latest
+bunx @clanker-guru/openspec
+```
+
+Or install globally:
+```bash
+bun install -g @clanker-guru/openspec
 ```
 
 Verify installation:
@@ -363,17 +368,17 @@ Run `openspec update` whenever someone switches tools so your agents pick up the
 
 1. **Upgrade the package**
    ```bash
-   npm install -g @fission-ai/openspec@latest
+   bun install -g @clanker-guru/openspec@latest
    ```
 2. **Refresh agent instructions**
    - Run `openspec update` inside each project to regenerate AI guidance and ensure the latest slash commands are active.
 
 ## Contributing
 
-- Install dependencies: `pnpm install`
-- Build: `pnpm run build`
-- Test: `pnpm test`
-- Develop CLI locally: `pnpm run dev` or `pnpm run dev:cli`
+- Install dependencies: `bun install`
+- Build: `bun run build`
+- Test: `bun test`
+- Develop CLI locally: `bun run dev` or `bun run dev:cli`
 - Conventional commits (one-line): `type(scope): subject`
 
 ## License

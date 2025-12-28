@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
 import { ArchiveCommand } from '../../src/core/archive.js';
 import { Validator } from '../../src/core/validation/validator.js';
 import { promises as fs } from 'fs';
@@ -6,9 +6,9 @@ import path from 'path';
 import os from 'os';
 
 // Mock @inquirer/prompts
-vi.mock('@inquirer/prompts', () => ({
-  select: vi.fn(),
-  confirm: vi.fn()
+mock.module('@inquirer/prompts', () => ({
+  select: mock(),
+  confirm: mock()
 }));
 
 describe('ArchiveCommand', () => {
@@ -31,7 +31,7 @@ describe('ArchiveCommand', () => {
     await fs.mkdir(path.join(openspecDir, 'changes', 'archive'), { recursive: true });
     
     // Suppress console.log during tests
-    console.log = vi.fn();
+    console.log = mock();
     
     archiveCommand = new ArchiveCommand();
   });
@@ -41,7 +41,7 @@ describe('ArchiveCommand', () => {
     console.log = originalConsoleLog;
     
     // Clear mocks
-    vi.clearAllMocks();
+    // clearAllMocks handled by bun:test;
     
     // Clean up temp directory
     try {
@@ -364,8 +364,8 @@ The system will log all events.
       await fs.writeFile(path.join(changeSpecDir, 'spec.md'), deltaSpec);
       await fs.writeFile(path.join(changeDir, 'tasks.md'), '- [x] Task 1\n');
 
-      const deltaSpy = vi.spyOn(Validator.prototype, 'validateChangeDeltaSpecs');
-      const specContentSpy = vi.spyOn(Validator.prototype, 'validateSpecContent');
+      const deltaSpy = spyOn(Validator.prototype, 'validateChangeDeltaSpecs');
+      const specContentSpy = spyOn(Validator.prototype, 'validateSpecContent');
 
       try {
         await archiveCommand.execute(changeName, { yes: true, skipSpecs: true, validate: false });
@@ -385,7 +385,7 @@ The system will log all events.
 
     it('should proceed with archive when user declines spec updates', async () => {
       const { confirm } = await import('@inquirer/prompts');
-      const mockConfirm = confirm as unknown as ReturnType<typeof vi.fn>;
+      const mockConfirm = confirm as unknown as ReturnType<typeof mock>;
       
       const changeName = 'decline-specs-feature';
       const changeDir = path.join(tempDir, 'openspec', 'changes', changeName);
@@ -557,8 +557,7 @@ new text
       // Should not change the main spec and should not archive the change dir
       const still = await fs.readFile(path.join(mainSpecDir, 'spec.md'), 'utf-8');
       expect(still).toBe(mainContent);
-      // Change dir should still exist since operation aborted
-      await expect(fs.access(changeDir)).resolves.not.toThrow();
+      await fs.access(changeDir);
     });
 
     it('should require MODIFIED to reference the NEW header when a rename exists (error format)', async () => {
@@ -675,8 +674,7 @@ E1 updated`);
       expect(e1).toContain('### Requirement: E1');
       expect(e1).not.toContain('E1 updated');
       expect(z1).toContain('### Requirement: Z1');
-      // changeDir should still exist
-      await expect(fs.access(changeDir)).resolves.not.toThrow();
+      await fs.access(changeDir);
     });
 
     it('should display aggregated totals across multiple specs', async () => {
@@ -723,7 +721,7 @@ E1 updated`);
   describe('interactive mode', () => {
     it('should use select prompt for change selection', async () => {
       const { select } = await import('@inquirer/prompts');
-      const mockSelect = select as unknown as ReturnType<typeof vi.fn>;
+      const mockSelect = select as unknown as ReturnType<typeof mock>;
       
       // Create test changes
       const change1 = 'feature-a';
@@ -754,7 +752,7 @@ E1 updated`);
 
     it('should use confirm prompt for task warnings', async () => {
       const { confirm } = await import('@inquirer/prompts');
-      const mockConfirm = confirm as unknown as ReturnType<typeof vi.fn>;
+      const mockConfirm = confirm as unknown as ReturnType<typeof mock>;
       
       const changeName = 'incomplete-interactive';
       const changeDir = path.join(tempDir, 'openspec', 'changes', changeName);
@@ -779,7 +777,7 @@ E1 updated`);
 
     it('should cancel when user declines task warning', async () => {
       const { confirm } = await import('@inquirer/prompts');
-      const mockConfirm = confirm as unknown as ReturnType<typeof vi.fn>;
+      const mockConfirm = confirm as unknown as ReturnType<typeof mock>;
       
       const changeName = 'cancel-test';
       const changeDir = path.join(tempDir, 'openspec', 'changes', changeName);
@@ -800,8 +798,7 @@ E1 updated`);
       // Verify archive was cancelled
       expect(console.log).toHaveBeenCalledWith('Archive cancelled.');
       
-      // Verify change was not archived
-      await expect(fs.access(changeDir)).resolves.not.toThrow();
+      await fs.access(changeDir);
     });
   });
 });

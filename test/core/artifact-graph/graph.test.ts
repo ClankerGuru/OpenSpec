@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import { ArtifactGraph } from '../../../src/core/artifact-graph/graph.js';
 import type { SchemaYaml } from '../../../src/core/artifact-graph/types.js';
 

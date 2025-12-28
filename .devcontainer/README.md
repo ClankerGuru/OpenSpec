@@ -4,12 +4,10 @@ This directory contains the VS Code dev container configuration for OpenSpec dev
 
 ## What's Included
 
-- **Node.js 20 LTS** (>=20.19.0) - TypeScript/JavaScript runtime
-- **pnpm** - Fast, disk space efficient package manager
+- **Bun** - Fast JavaScript runtime, bundler, and package manager
 - **Git + GitHub CLI** - Version control tools
 - **VS Code Extensions**:
   - ESLint & Prettier for code quality
-  - Vitest Explorer for running tests
   - GitLens for enhanced git integration
   - Error Lens for inline error highlighting
   - Code Spell Checker
@@ -37,7 +35,7 @@ This directory contains the VS Code dev container configuration for OpenSpec dev
 
 3. **Wait for Setup**:
    - The container will build (first time takes a few minutes)
-   - `pnpm install` runs automatically via `postCreateCommand`
+   - `bun install` runs automatically via `postCreateCommand`
    - All extensions install automatically
 
 ### Daily Development
@@ -46,19 +44,16 @@ Once set up, the container preserves your development environment:
 
 ```bash
 # Run development build
-pnpm run dev
+bun run dev
 
 # Run CLI in development
-pnpm run dev:cli
+bun run dev:cli
 
 # Run tests
-pnpm test
-
-# Run tests in watch mode
-pnpm test:watch
+bun test
 
 # Build the project
-pnpm run build
+bun run build
 ```
 
 ### SSH Keys
@@ -72,9 +67,9 @@ If you modify `.devcontainer/devcontainer.json`:
 
 ## Benefits
 
-- No need to install Node.js or pnpm on your local machine
+- No need to install Bun on your local machine
 - Consistent development environment across team members
-- Isolated from other Node.js projects on your machine
+- Isolated from other projects on your machine
 - All dependencies and tools containerized
 - Easy onboarding for new developers
 
@@ -88,5 +83,5 @@ If you modify `.devcontainer/devcontainer.json`:
 - Rebuild the container: "Dev Containers: Rebuild Container"
 
 **Permission issues:**
-- The container runs as the `node` user (non-root)
+- The container runs as the `bun` user (non-root)
 - Files created in the container are owned by this user

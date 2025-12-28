@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -10,7 +10,7 @@ type SelectionQueue = string[][];
 
 let selectionQueue: SelectionQueue = [];
 
-const mockPrompt = vi.fn(async () => {
+const mockPrompt = mock(async () => {
   if (selectionQueue.length === 0) {
     throw new Error('No queued selections provided to init prompt.');
   }
@@ -42,7 +42,7 @@ describe('InitCommand', () => {
     testDir = path.join(os.tmpdir(), `openspec-init-test-${Date.now()}`);
     await fs.mkdir(testDir, { recursive: true });
     selectionQueue = [];
-    mockPrompt.mockReset();
+    mockPrompt.mockClear();
     initCommand = new InitCommand({ prompt: mockPrompt });
 
     // Route Codex global directory into the test sandbox
@@ -50,12 +50,12 @@ describe('InitCommand', () => {
     process.env.CODEX_HOME = path.join(testDir, '.codex');
 
     // Mock console.log to suppress output during tests
-    vi.spyOn(console, 'log').mockImplementation(() => { });
+    spyOn(console, 'log').mockImplementation(() => { });
   });
 
   afterEach(async () => {
     await fs.rm(testDir, { recursive: true, force: true });
-    vi.restoreAllMocks();
+    // mocks auto-restore in bun:test;
     if (prevCodexHome === undefined) delete process.env.CODEX_HOME;
     else process.env.CODEX_HOME = prevCodexHome;
   });
@@ -853,7 +853,7 @@ describe('InitCommand', () => {
 
     it('should display success message with selected tool name', async () => {
       queueSelections('claude', DONE);
-      const logSpy = vi.spyOn(console, 'log');
+      const logSpy = spyOn(console, 'log');
 
       await initCommand.execute(testDir);
 
@@ -863,7 +863,7 @@ describe('InitCommand', () => {
 
     it('should reference AGENTS compatible assistants in success message', async () => {
       queueSelections(DONE);
-      const logSpy = vi.spyOn(console, 'log');
+      const logSpy = spyOn(console, 'log');
 
       await initCommand.execute(testDir);
 
@@ -1645,7 +1645,7 @@ describe('InitCommand', () => {
 
       // Mock the permission check to fail
       const originalCheck = fs.writeFile;
-      vi.spyOn(fs, 'writeFile').mockImplementation(
+      spyOn(fs, 'writeFile').mockImplementation(
         async (filePath: any, ...args: any[]) => {
           if (
             typeof filePath === 'string' &&

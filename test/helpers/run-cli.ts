@@ -59,7 +59,7 @@ export async function ensureCliBuilt() {
   }
 
   if (!buildPromise) {
-    buildPromise = runCommand('pnpm', ['run', 'build']).catch((error) => {
+    buildPromise = runCommand('bun', ['run', 'build']).catch((error) => {
       buildPromise = undefined;
       throw error;
     });
@@ -79,7 +79,7 @@ export async function runCLI(args: string[] = [], options: RunCLIOptions = {}): 
   const invocation = [cliEntry, ...finalArgs].join(' ');
 
   return new Promise<RunCLIResult>((resolve, reject) => {
-    const child = spawn(process.execPath, [cliEntry, ...finalArgs], {
+    const child = spawn('bun', [cliEntry, ...finalArgs], {
       cwd: options.cwd ?? projectRoot,
       env: {
         ...process.env,
@@ -90,7 +90,6 @@ export async function runCLI(args: string[] = [], options: RunCLIOptions = {}): 
       windowsHide: true,
     });
 
-    // Prevent child process from keeping the event loop alive
     child.unref();
 
     let stdout = '';
@@ -116,7 +115,6 @@ export async function runCLI(args: string[] = [], options: RunCLIOptions = {}): 
 
     child.on('error', (error) => {
       if (timeout) clearTimeout(timeout);
-      // Explicitly destroy streams to prevent hanging handles
       child.stdout?.destroy();
       child.stderr?.destroy();
       child.stdin?.destroy();
@@ -125,7 +123,6 @@ export async function runCLI(args: string[] = [], options: RunCLIOptions = {}): 
 
     child.on('close', (code, signal) => {
       if (timeout) clearTimeout(timeout);
-      // Explicitly destroy streams to prevent hanging handles
       child.stdout?.destroy();
       child.stderr?.destroy();
       child.stdin?.destroy();
@@ -135,7 +132,7 @@ export async function runCLI(args: string[] = [], options: RunCLIOptions = {}): 
         stdout,
         stderr,
         timedOut,
-        command: `node ${invocation}`,
+        command: `bun ${invocation}`,
       });
     });
 
