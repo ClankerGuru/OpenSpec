@@ -72,8 +72,6 @@ export async function ensureCliBuilt() {
   }
 }
 
-const DEFAULT_TIMEOUT_MS = 30000;
-
 export async function runCLI(args: string[] = [], options: RunCLIOptions = {}): Promise<RunCLIResult> {
   await ensureCliBuilt();
 
@@ -93,15 +91,18 @@ export async function runCLI(args: string[] = [], options: RunCLIOptions = {}): 
       shell: process.platform === 'win32',
     });
 
+    child.unref();
+
     let stdout = '';
     let stderr = '';
     let timedOut = false;
 
-    const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-    const timeout = setTimeout(() => {
-      timedOut = true;
-      child.kill('SIGKILL');
-    }, timeoutMs);
+    const timeout = options.timeoutMs
+      ? setTimeout(() => {
+          timedOut = true;
+          child.kill('SIGKILL');
+        }, options.timeoutMs)
+      : undefined;
 
     child.stdout?.setEncoding('utf-8');
     child.stdout?.on('data', (chunk) => {
