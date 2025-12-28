@@ -4,9 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version bump type (patch, minor, major) or specific version (e.g., 1.0.0)'
+        description: 'Version to publish (e.g., 0.0.1-alpha.1)'
         required: true
-        default: 'patch'
+        type: string
+      tag:
+        description: 'NPM tag (alpha, beta, latest)'
+        required: false
+        default: 'alpha'
         type: string
 
 permissions:
@@ -14,65 +18,30 @@ permissions:
 
 jobs:
   publish:
-    name: Publish to registry
+    name: Publish to npm
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - run: bun install --frozen-lockfile
 
-      - name: Build project
-        run: bun run build
+      - run: bun run build
 
-      - name: Run tests
-        run: bun test
+      - run: bun test
 
-      - name: Configure git
+      - name: Set version
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Bump version
-        run: |
-          CURRENT_VERSION=$(bun -e "console.log(require('./package.json').version)")
-          if [[ "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            NEW_VERSION="${{ inputs.version }}"
-          else
-            # Calculate new version based on bump type
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-            case "${{ inputs.version }}" in
-              major) NEW_VERSION="$((MAJOR + 1)).0.0" ;;
-              minor) NEW_VERSION="${MAJOR}.$((MINOR + 1)).0" ;;
-              patch) NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))" ;;
-              *) echo "Invalid version type"; exit 1 ;;
-            esac
-          fi
-          # Update package.json using bun
           bun -e "
             const pkg = require('./package.json');
-            pkg.version = '${NEW_VERSION}';
+            pkg.version = '${{ inputs.version }}';
             require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
           "
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Commit version bump
-        run: |
-          git add package.json
-          git commit -m "chore: release v${{ env.NEW_VERSION }}"
-          git tag "v${{ env.NEW_VERSION }}"
-          git push origin HEAD --tags
-
-      - name: Publish to registry
-        run: bun publish --access public
+      - name: Publish
+        run: bun publish --access public --tag ${{ inputs.tag }} --tolerate-republish
         env:
-          BUN_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}

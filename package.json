@@ -1,6 +1,6 @@
 {
   "name": "@clanker-guru/openspec",
-  "version": "0.17.2",
+  "version": "0.0.1-alpha.1",
   "description": "AI-native system for spec-driven development",
   "keywords": [
     "openspec",
