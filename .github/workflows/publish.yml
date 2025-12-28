@@ -1,17 +1,8 @@
 name: Publish
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to publish (e.g., 0.0.1-alpha.1)'
-        required: true
-        type: string
-      tag:
-        description: 'NPM tag (alpha, beta, latest)'
-        required: false
-        default: 'alpha'
-        type: string
+  release:
+    types: [published]
 
 permissions:
   contents: write
@@ -33,15 +24,27 @@ jobs:
 
       - run: bun test
 
-      - name: Set version
+      - name: Set version from tag
         run: |
+          VERSION="${GITHUB_REF_NAME#v}"
           bun -e "
             const pkg = require('./package.json');
-            pkg.version = '${{ inputs.version }}';
+            pkg.version = '$VERSION';
             require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
           "
 
+      - name: Determine npm tag
+        id: npm-tag
+        run: |
+          if [[ "$GITHUB_REF_NAME" == *"alpha"* ]]; then
+            echo "tag=alpha" >> $GITHUB_OUTPUT
+          elif [[ "$GITHUB_REF_NAME" == *"beta"* ]]; then
+            echo "tag=beta" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+
       - name: Publish
-        run: bun publish --access public --tag ${{ inputs.tag }}
+        run: bun publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
         env:
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
