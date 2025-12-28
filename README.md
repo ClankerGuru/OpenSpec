@@ -10,7 +10,7 @@
 </p>
 <p align="center">Spec-driven development for AI coding assistants.</p>
 <p align="center">
-  <a href="https://github.com/clanker-guru/OpenSpec/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/clanker-guru/OpenSpec/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://github.com/ClankerGuru/OpenSpec/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/clanker-guru/OpenSpec/actions/workflows/ci.yml/badge.svg" /></a>
   <a href="https://www.npmjs.com/package/@clanker-guru/openspec"><img alt="npm version" src="https://img.shields.io/npm/v/@clanker-guru/openspec?style=flat-square" /></a>
   <a href="https://bun.sh/"><img alt="Bun" src="https://img.shields.io/badge/Bun-runtime-f9f1e1?logo=bun&style=flat-square" /></a>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" /></a>
