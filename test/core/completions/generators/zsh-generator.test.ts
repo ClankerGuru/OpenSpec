@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect, beforeEach } from 'bun:test';
 import { ZshGenerator } from '../../../../src/core/completions/generators/zsh-generator.js';
 import { CommandDefinition } from '../../../../src/core/completions/types.js';
 

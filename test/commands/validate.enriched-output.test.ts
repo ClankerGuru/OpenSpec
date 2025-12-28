@@ -2,15 +2,19 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import os from 'os';
+import { randomUUID } from 'crypto';
 
 describe('validate command enriched human output', () => {
   const projectRoot = process.cwd();
-  const testDir = path.join(projectRoot, 'test-validate-enriched-tmp');
-  const changesDir = path.join(testDir, 'openspec', 'changes');
+  let testDir: string;
+  let changesDir: string;
   const bin = path.join(projectRoot, 'bin', 'openspec.js');
 
 
   beforeEach(async () => {
+    testDir = path.join(os.tmpdir(), `openspec-test-${randomUUID()}`);
+    changesDir = path.join(testDir, 'openspec', 'changes');
     await fs.mkdir(changesDir, { recursive: true });
   });
 
@@ -31,7 +35,7 @@ describe('validate command enriched human output', () => {
       let code = 0;
       let stderr = '';
       try {
-        execSync(`node ${bin} change validate ${changeId}`, { encoding: 'utf-8', stdio: 'pipe' });
+        execSync(`bun ${bin} change validate ${changeId}`, { encoding: 'utf-8', stdio: 'pipe' });
       } catch (e: any) {
         code = e?.status ?? 1;
         stderr = e?.stderr?.toString?.() ?? '';

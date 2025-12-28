@@ -4,6 +4,7 @@ import { Validator } from '../../src/core/validation/validator.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
+import { randomUUID } from 'crypto';
 
 // Mock @inquirer/prompts
 mock.module('@inquirer/prompts', () => ({
@@ -14,39 +15,33 @@ mock.module('@inquirer/prompts', () => ({
 describe('ArchiveCommand', () => {
   let tempDir: string;
   let archiveCommand: ArchiveCommand;
-  const originalConsoleLog = console.log;
+  let originalCwd: string;
+  let consoleSpy: ReturnType<typeof spyOn>;
 
   beforeEach(async () => {
-    // Create temp directory
-    tempDir = path.join(os.tmpdir(), `openspec-archive-test-${Date.now()}`);
+    originalCwd = process.cwd();
+    tempDir = path.join(os.tmpdir(), `openspec-archive-test-${randomUUID()}`);
     await fs.mkdir(tempDir, { recursive: true });
     
-    // Change to temp directory
     process.chdir(tempDir);
     
-    // Create OpenSpec structure
     const openspecDir = path.join(tempDir, 'openspec');
     await fs.mkdir(path.join(openspecDir, 'changes'), { recursive: true });
     await fs.mkdir(path.join(openspecDir, 'specs'), { recursive: true });
     await fs.mkdir(path.join(openspecDir, 'changes', 'archive'), { recursive: true });
     
-    // Suppress console.log during tests
-    console.log = mock();
+    consoleSpy = spyOn(console, 'log').mockImplementation(() => {});
     
     archiveCommand = new ArchiveCommand();
   });
 
   afterEach(async () => {
-    // Restore console.log
-    console.log = originalConsoleLog;
+    consoleSpy.mockRestore();
+    process.chdir(originalCwd);
     
-    // Clear mocks
-    // clearAllMocks handled by bun:test;
-    
-    // Clean up temp directory
     try {
       await fs.rm(tempDir, { recursive: true, force: true });
-    } catch (error) {
+    } catch {
       // Ignore cleanup errors
     }
   });

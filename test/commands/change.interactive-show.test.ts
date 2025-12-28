@@ -2,15 +2,19 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import os from 'os';
+import { randomUUID } from 'crypto';
 
 describe('change show (interactive behavior)', () => {
   const projectRoot = process.cwd();
-  const testDir = path.join(projectRoot, 'test-change-show-tmp');
-  const changesDir = path.join(testDir, 'openspec', 'changes');
+  let testDir: string;
+  let changesDir: string;
   const bin = path.join(projectRoot, 'bin', 'openspec.js');
 
 
   beforeEach(async () => {
+    testDir = path.join(os.tmpdir(), `openspec-test-${randomUUID()}`);
+    changesDir = path.join(testDir, 'openspec', 'changes');
     await fs.mkdir(changesDir, { recursive: true });
     const content = `# Change: Demo\n\n## Why\n\n## What Changes\n- x`;
     await fs.mkdir(path.join(changesDir, 'demo'), { recursive: true });
@@ -29,7 +33,7 @@ describe('change show (interactive behavior)', () => {
       process.env.OPEN_SPEC_INTERACTIVE = '0';
       let err: any;
       try {
-        execSync(`node ${bin} change show`, { encoding: 'utf-8' });
+        execSync(`bun ${bin} change show`, { encoding: 'utf-8' });
       } catch (e) { err = e; }
       expect(err).toBeDefined();
       expect(err.status).not.toBe(0);

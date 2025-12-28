@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach, mock, spyOn, vi } from 'bun:test';
 import { UpdateCommand } from '../../src/core/update.js';
 import { FileSystemUtils } from '../../src/utils/file-system.js';
 import { ToolRegistry } from '../../src/core/configurators/registry.js';
@@ -6,6 +6,22 @@ import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
 import { randomUUID } from 'crypto';
+
+/**
+ * Helper to find a log message containing a specific substring from spy calls.
+ * This is more robust than assuming index 0, as tests running in parallel
+ * may pollute the spy's call list.
+ */
+function findLogMessage(spy: ReturnType<typeof spyOn>, substring: string): string | undefined {
+  const calls = spy.mock.calls;
+  for (const call of calls) {
+    const msg = call[0];
+    if (typeof msg === 'string' && msg.includes(substring)) {
+      return msg;
+    }
+  }
+  return undefined;
+}
 
 describe('UpdateCommand', () => {
   let testDir: string;
@@ -64,7 +80,8 @@ More content after.`;
     expect(updatedContent).toContain('More content after');
 
     // Check console output
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -98,7 +115,8 @@ More notes here.`;
     expect(updatedContent).toContain('Some existing content.');
     expect(updatedContent).toContain('More notes here.');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -137,7 +155,8 @@ Old slash content
     );
     expect(updated).not.toContain('Old slash content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -176,7 +195,8 @@ Old body
     expect(updated).toContain('Work through tasks sequentially');
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -273,7 +293,8 @@ More rules after.`;
     expect(updatedContent).toContain('More rules after');
 
     // Check console output
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -321,7 +342,8 @@ Old slash content
     );
     expect(updated).not.toContain('Old slash content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -356,7 +378,8 @@ Old body
     expect(updated).toContain('Work through tasks sequentially');
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -394,7 +417,8 @@ Old body
     expect(updated).toContain('Work through tasks sequentially');
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -426,7 +450,8 @@ Old body
     expect(updated).not.toContain('Old body');
     expect(updated.startsWith('<!-- OPENSPEC:START -->')).toBe(true);
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .kilocode/workflows/openspec-apply.md'
     );
@@ -456,7 +481,8 @@ Old body
     expect(updated).not.toContain('Old body');
     expect(updated).toContain('## OpenSpec: Apply (Windsurf)');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .windsurf/workflows/openspec-apply.md'
     );
@@ -488,7 +514,8 @@ Old body
     expect(updated).toContain('description: Implement an approved OpenSpec change and keep tasks in sync.');
     expect(updated).not.toContain('auto_execution_mode: 3');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .agent/workflows/openspec-apply.md'
     );
@@ -516,7 +543,8 @@ Old body
     expect(updated).not.toContain('Old body');
     expect(updated).not.toContain('Old description');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .codex/prompts/openspec-apply.md'
     );
@@ -579,7 +607,8 @@ Old body
     expect(updated).toContain('Work through tasks sequentially');
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .github/prompts/openspec-apply.prompt.md'
     );
@@ -656,7 +685,8 @@ Old Gemini body
     await expect(FileSystemUtils.fileExists(geminiApply)).resolves.toBe(false);
     await expect(FileSystemUtils.fileExists(geminiArchive)).resolves.toBe(false);
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .gemini/commands/openspec/proposal.toml'
     );
@@ -703,7 +733,8 @@ Old IFlow body
     await expect(FileSystemUtils.fileExists(iflowApply)).resolves.toBe(false);
     await expect(FileSystemUtils.fileExists(iflowArchive)).resolves.toBe(false);
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated slash commands: .iflow/commands/openspec-proposal.md'
     );
@@ -937,7 +968,8 @@ Old slash content
     );
     expect(updated).not.toContain('Old slash content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1015,7 +1047,8 @@ Old slash content
     );
     expect(updated).not.toContain('Old slash content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1093,7 +1126,8 @@ Old body
     );
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1134,7 +1168,8 @@ Old slash content
     );
     expect(updated).not.toContain('Old slash content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1174,7 +1209,8 @@ Old body
     );
     expect(updated).not.toContain('Old body');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1320,7 +1356,8 @@ More instructions after.`;
     expect(updatedContent).toContain('More instructions after');
 
     // Check console output
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1386,7 +1423,8 @@ More instructions after.`;
 
     // Should report the failure
     expect(errorSpy).toHaveBeenCalled();
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1450,7 +1488,8 @@ More instructions after.`;
     await updateCommand.execute(testDir);
 
     // Should only update OpenSpec instructions
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1474,7 +1513,8 @@ More instructions after.`;
     await updateCommand.execute(testDir);
 
     // Should report updating with new format
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
@@ -1577,7 +1617,8 @@ Old content
     expect(updated).toContain('openspec update');
     expect(updated).not.toContain('Old content');
 
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md, AGENTS.md)'
     );
@@ -1625,7 +1666,8 @@ Old content
 
     // Should report the failure
     expect(errorSpy).toHaveBeenCalled();
-    const [logMessage] = consoleSpy.mock.calls[0];
+    const logMessage = findLogMessage(consoleSpy, 'Updated OpenSpec instructions');
+    expect(logMessage).toBeDefined();
     expect(logMessage).toContain(
       'Updated OpenSpec instructions (openspec/AGENTS.md'
     );
