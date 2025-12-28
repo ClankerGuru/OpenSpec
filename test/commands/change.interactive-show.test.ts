@@ -9,7 +9,7 @@ describe('change show (interactive behavior)', () => {
   const projectRoot = process.cwd();
   let testDir: string;
   let changesDir: string;
-  const bin = path.join(projectRoot, 'bin', 'openspec.js');
+  const bin = path.join(projectRoot, 'bin', 'openspec.ts');
 
 
   beforeEach(async () => {

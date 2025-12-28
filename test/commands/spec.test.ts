@@ -9,7 +9,7 @@ describe('spec command', () => {
   const projectRoot = process.cwd();
   let testDir: string;
   let specsDir: string;
-  const openspecBin = path.join(projectRoot, 'bin', 'openspec.js');
+  const openspecBin = path.join(projectRoot, 'bin', 'openspec.ts');
   
   
   beforeEach(async () => {

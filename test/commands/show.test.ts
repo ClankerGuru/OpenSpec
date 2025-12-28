@@ -10,7 +10,7 @@ describe('top-level show command', () => {
   let testDir: string;
   let changesDir: string;
   let specsDir: string;
-  const openspecBin = path.join(projectRoot, 'bin', 'openspec.js');
+  const openspecBin = path.join(projectRoot, 'bin', 'openspec.ts');
 
 
   beforeEach(async () => {
