@@ -15,7 +15,6 @@
   <a href="https://bun.sh/"><img alt="Bun" src="https://img.shields.io/badge/Bun-runtime-f9f1e1?logo=bun&style=flat-square" /></a>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" /></a>
   <a href="https://conventionalcommits.org"><img alt="Conventional Commits" src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?style=flat-square" /></a>
-  <a href="https://discord.gg/YctCnvvshC"><img alt="Discord" src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white&style=flat-square" /></a>
 </p>
 
 <p align="center">
@@ -23,7 +22,7 @@
 </p>
 
 <p align="center">
-  Follow <a href="https://x.com/0xTab">@0xTab on X</a> for updates · Join the <a href="https://discord.gg/YctCnvvshC">OpenSpec Discord</a> for help and questions.
+  Follow <a href="https://x.com/ClankerGuru">@ClankerGuru on X</a> for updates.
 </p>
 
 # OpenSpec
